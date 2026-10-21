@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>数据库 | JournalSystem</title>
+<style>
+body { font-family: Microsoft YaHei, sans-serif; max-width: 1200px; margin: 20px auto; padding: 0 20px; background: #f5f5f5; }
+h1 { color: #333; }
+table { width: 100%; border-collapse: collapse; margin-bottom: 30px; background: #fff; border-radius: 6px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+caption { font-size: 16px; font-weight: bold; padding: 12px; background: #409eff; color: #fff; text-align: left; }
+th { background: #f0f5ff; padding: 10px 12px; text-align: left; border-bottom: 2px solid #409eff; font-size: 13px; }
+td { padding: 8px 12px; border-bottom: 1px solid #eee; font-size: 13px; }
+tr:hover { background: #f9fbff; }
+.tag { display: inline-block; background: #e6f7e6; color: #52c41a; padding: 1px 6px; border-radius: 3px; margin: 1px 2px; font-size: 11px; }
+.tag-empty { color: #ccc; }
+.count { color: #409eff; font-weight: bold; }
+</style>
+</head>
+<body>
+<h1>📊 JournalSystem 数据库（127.0.0.1）</h1>
+<div id="content">加载中...</div>
+<script>
+fetch('/api/upload/status')
+  .then(r => r.json())
+  .then(d => {
+    let html = '';
+    d.tables.forEach(t => {
+      html += `<table><caption>${t.table} <span style="font-weight:normal;font-size:13px">— ${t.count} 条</span></caption>
+        <tr><th>ID</th><th>PaperTitle</th><th>PublishDate</th><th>RelateDBs</th></tr>`;
+      if (t.samples) {
+        t.samples.forEach(s => {
+          const dbs = s.RelateDBs ? s.RelateDBs.split(',').filter(Boolean).map(db => `<span class="tag">${db.trim()}</span>`).join('') : '<span class="tag-empty">—</span>';
+          html += `<tr><td>${s.ID}</td><td>${s.PaperTitle||''}</td><td>${s.PublishDate||''}</td><td>${dbs}</td></tr>`;
+        });
+      }
+      if (t.count > 3) html += `<tr><td colspan="4" style="text-align:center;color:#999;">... 仅显示前 3 条，共 <b>${t.count}</b> 条</td></tr>`;
+      if (t.count === 0) html += `<tr><td colspan="4" style="text-align:center;color:#999;">（空表）</td></tr>`;
+      html += '</table>';
+    });
+    document.getElementById('content').innerHTML = html;
+  })
+  .catch(e => document.getElementById('content').innerHTML = '加载失败: ' + e.message);
+</script>
+</body>
+</html>

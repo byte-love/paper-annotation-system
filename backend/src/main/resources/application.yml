@@ -1,0 +1,38 @@
+server:
+  port: 8080
+  error:
+    whitelabel:
+      enabled: false
+
+spring:
+  data:
+    mongodb:
+      uri: mongodb://127.0.0.1:27017/journal_papers_test
+
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+
+logging:
+  level:
+    com.journal: debug
+
+# 外网上传目标（测试:127.0.0.1:14330→代理→150; 正式:改 host/port 即可）
+# 密码不入库，从环境变量读取：部署时在 jar 同级目录放 .env（见 .env.example）
+external:
+  sqlserver:
+    host: ${EXTERNAL_SQL_HOST:127.0.0.1}
+    port: ${EXTERNAL_SQL_PORT:1433}
+    user: ${EXTERNAL_SQL_USER:sa}
+    password: ${EXTERNAL_SQL_PASSWORD:}
+    database: ${EXTERNAL_SQL_DATABASE:JournalSystem}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+  data:
+    mongodb:
+      uri: mongodb://127.0.0.1:27017/journal_papers
